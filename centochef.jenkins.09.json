@@ -1,0 +1,41 @@
+{
+  "variables": {
+    "chef_sdk_rpm": "/tmp/chef-14.1.12-1.el7.x86_64.rpm",
+    "image_repository": "debtano/centos-chef"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "centos:latest",
+      "commit": true,
+      "pull": false
+    }
+  ],
+  "provisioners": [
+    {
+     "type": "file",
+     "source": "/app/chef-14.1.12-1.el7.x86_64.rpm",
+     "destination": "/tmp/chef-14.1.12-1.el7.x86_64.rpm"   
+    },
+    {"type": "shell", 
+     "inline": [
+         "rpm -ivh {{ user `chef_sdk_rpm`}}",
+         "mkdir /cookbooks"
+       ]
+    },
+    {
+    "type": "file",
+    "source": "/app/chef/cookbooks/tomcat",
+    "destination": "/cookbooks"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `image_repository`}}",
+        "tag": "0.9"
+      }
+    ]
+  ]
+}
